@@ -1,16 +1,37 @@
+
 name: Greetings
 
-on: [pull_request_target, issues]
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   greeting:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
+
     steps:
-    - uses: actions/first-interaction@v1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: "Message that will be displayed on users' first issue"
-        pr-message: "Message that will be displayed on users' first pull request"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Push Greeting
+        if: github.event_name == 'push'
+        run: |
+          echo "Hello $GITHUB_ACTOR!"
+          echo "Thank you for pushing code to the repository."
+          echo "Your push event was successfully triggered."
+
+      - name: Pull Request Greeting
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Hello $GITHUB_ACTOR!"
+          echo "Thank you for creating or updating a Pull Request."
+          echo "Your pull request workflow was successfully triggered."
